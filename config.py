@@ -4,6 +4,10 @@ WINDOW_HEIGHT = 600
 
 CELL_SIZE = 10  # pixelů na buňku
 
+CELL_COST = 10
+UPGRADE_COST_BASE = 50
+
+
 GRID_WIDTH = WINDOW_WIDTH // CELL_SIZE
 GRID_HEIGHT = WINDOW_HEIGHT // CELL_SIZE
 
@@ -11,6 +15,7 @@ FPS = 10  # počet ticků za sekundu
 
 COLOR_BACKGROUND = (15, 15, 15)
 PLAYER_COLORS = [
+    COLOR_BACKGROUND,  # 0 = mrtvá buňka (černá)
     (255, 0, 0),    #1 hráč - červená
     (0, 255, 0),    #2 hráč - zelená
     (0, 0, 255),    #3 hráč - modrá
