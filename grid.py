@@ -38,7 +38,7 @@ class Grid:
                     count += 1
         return count
 
-    def next_generation(self, dominant_neighbor_func, mine_explosion_func):
+    def next_generation(self, dominant_neighbor_func, mine_explosion_func, players = None):
         # aplukuje pravidla hry na celou  mřížku
 
         # 1. nejdřív vytvoř nové mřížky
@@ -52,7 +52,7 @@ class Grid:
                 alive = self.cells[row, col] > 0
                 protected = granary_effect(self, row, col)
                 survives = alive and (neighbors in (2, 3) or (protected and neighbors > 3))
-                if alive and not survives:
+                if alive and not survives and players is not None:
                     owner = self.cells[row, col]
                     player = players[owner - 1]
                     chance = min(player.resilience * 0.05, 0.90)  # max 90%, level 18

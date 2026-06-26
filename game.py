@@ -60,7 +60,7 @@ class Game:
         # posune simulaci o jeden krok, pokud není fáze akce
         if self.phase != Phase.SIMULATING:
             return
-        self.grid.next_generation(self.dominant_neighbor, mine_explosion)
+        self.grid.next_generation(self.dominant_neighbor, mine_explosion, self.players)
         self.collect_factory_income()
         self.tick_count += 1
         if isinstance(self.mode, FlagsMode):
