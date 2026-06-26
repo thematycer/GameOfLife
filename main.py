@@ -7,8 +7,6 @@ from special import SpecialType
 from ui import draw_action_panel, draw_game_over_panel, draw_grid, draw_simulation_panel, draw_setup
 from modes import DominanceMode
 
-
-
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -93,6 +91,7 @@ def main():
         
         # 2. aktualizace
         if game is not None:
+            #hra jeste neexistuje, tedy by vznikli errory
             game.tick()
 
             # 3. vykreslení

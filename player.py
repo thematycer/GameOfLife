@@ -8,6 +8,7 @@ class Player:
     name: str
     aggression: int = 0   # úroveň upgradu (0 = žádný)
     resilience: int = 0
+    # mutace mi přišla jako špatná mechanika, jelikož jak drahé jsou budovy
     score: int = 0
     def upgrade_cost(self, upgrade: str) -> int:
         level = getattr(self, upgrade) # získej aktuální úroveň upgradu

@@ -68,7 +68,7 @@ class EliminationMode(GameMode):
         return False
 
     def get_standings(self, game) -> list[dict]:
-        # přeživší je první – tedy obráceně
+        # přeživší je první tedy musíme procházet obráceně
         results = []
         for player_id in reversed(self.elimination_order):
             player = next(p for p in game.players if p.id == player_id)
@@ -87,21 +87,25 @@ class FlagsMode(GameMode):
         self.max_ticks = max_ticks
         self.num_flags = num_flags
         self.flag_radius = flag_radius
-        self.flag_positions = []   # [(row, col), ...]
-        self.flag_scores = {}      # {player_id: body za vlajky}
+        self.flag_positions = []   # pozice vlajek na gridu
+        self.flag_scores = {}      # body za vlajky pro každého hráče
 
     def place_flags(self, grid):
-        """Náhodně rozmístí vlajky – volá se po inicializaci gridu."""
+        """Náhodně rozmístí vlajky"""
         import random
         self.flag_positions = []
-        for _ in range(self.num_flags):
+        attempts = 0
+        #může se stát že dáme vlajku na vlajku, chceme to řešit, <1000 se spustí když je něco velmi špatně, například moc vlajek na malou plochu
+        while len(self.flag_positions) < self.num_flags and attempts < 1000:
             r = random.randint(2, grid.height - 3)
             c = random.randint(2, grid.width - 3)
-            self.flag_positions.append((r, c))
-            grid.special[r, c] = SpecialType.FLAG.value
+            attempts += 1
+            if (r, c) not in self.flag_positions:
+                self.flag_positions.append((r, c))
+                grid.special[r, c] = SpecialType.FLAG.value
 
     def award_flag_scores(self, game):
-        """Udělí body za ovládané vlajky – volá se každý tick."""
+        """Udělí body za ovládané vlajky a to každý tick."""
         for (fr, fc) in self.flag_positions:
             counts = {}
             for r in range(fr - self.flag_radius, fr + self.flag_radius + 1):

@@ -38,7 +38,7 @@ class SetupScreen:
         import pygame
         if self.naming:
             return self._handle_naming(key)
-
+        # pohyby v meunu
         if key == pygame.K_UP:
             self.selected = (self.selected - 1) % len(self.options)
         elif key == pygame.K_DOWN:
@@ -95,6 +95,8 @@ class SetupScreen:
             mode = EliminationMode()
         elif mode_name == "Vlajky":
             mode = FlagsMode(max_ticks=max_ticks)
+        #další módy lze přidat zde
+
 
         game = Game(
             num_players=num_players,

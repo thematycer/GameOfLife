@@ -13,7 +13,7 @@ class Grid:
         self.height = height
         # inicializace mřížky s nulami (všechny buňky mrtvé)
         self.cells = np.zeros((height, width), dtype=int)
-        # iniciace mřížky s peciálními buňkami
+        # iniciace mřížky s peciálními buňkami (všechny jsou normální)
         self.special = np.zeros((height, width), dtype=int)
 
     def randomize(self, density: float = 0.3, num_players: int = 1):
