@@ -23,7 +23,8 @@ GRANARY_UNKEEP_COST = 25 # cena za údržbu sýpky, odečítá se z hráčova sk
 MINE_COST = 50
 MINE_RADIUS = 1  # poloměr exploze v buňkách (1 = 3×3 oblast)
 
-
+FACTORY_COST = 150
+FACTORY_INCOME = 5 # příjem za tick
 
 
 FPS = 10  # rychlost simulace

@@ -3,7 +3,7 @@
 '''
 from enum import Enum
 from grid import Grid
-from config import CELL_COST, GRANARY_COST, GRANARY_UNKEEP_COST,  MINE_COST, PANEL_WIDTH, REFUND_MULTIPLIER
+from config import CELL_COST, FACTORY_COST, FACTORY_INCOME, GRANARY_COST, GRANARY_UNKEEP_COST,  MINE_COST, PANEL_WIDTH, REFUND_MULTIPLIER
 from player import Player
 import numpy as np
 from special import SpecialType, mine_explosion
@@ -61,6 +61,7 @@ class Game:
         if self.phase != Phase.SIMULATING:
             return
         self.grid.next_generation(self.dominant_neighbor, mine_explosion)
+        self.collect_factory_income()
         self.tick_count += 1
         if isinstance(self.mode, FlagsMode):
             self.mode.award_flag_scores(self)
@@ -117,6 +118,15 @@ class Game:
                 return  # nedostatek bodů
             player.score -= MINE_COST
             self.grid.special[row, col] = SpecialType.MINE_INACTIVE.value
+        elif special_type == SpecialType.FACTORY:
+            if self.grid.cells[row, col] != self.current_player + 1:
+                return
+            if self.grid.special[row, col] != SpecialType.NONE.value:
+                return
+            if player.score < FACTORY_COST:
+                return
+            player.score -= FACTORY_COST
+            self.grid.special[row, col] = SpecialType.FACTORY.value
 
     
     def calculate_scores(self):
@@ -137,6 +147,14 @@ class Game:
                 player.score = 0
             else:
                 player.score -= upkeep_cost
+
+    def collect_factory_income(self):
+        for player in self.players:
+            factory_mask = (self.grid.special == SpecialType.FACTORY.value) & (self.grid.cells == player.id)
+            count = int(np.sum(factory_mask))
+            player.score += count * FACTORY_INCOME
+        
+
 
     def dominant_neighbor(self, row: int, col: int) -> int:
         # vrací ID hráče, který má převahu nad danou pozicí a tedy by jí měl dostat

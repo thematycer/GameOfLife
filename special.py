@@ -8,6 +8,7 @@ class SpecialType(Enum):
     MINE_INACTIVE = 2  # první kolo po umístění
     MINE_ACTIVE = 3    # od druhého kola, exploduje při kontaktu
     FLAG = 4 # Vlajky pro zabrání
+    FACTORY = 5
 
 def granary_effect(grid, row: int, col: int) -> bool:
     """

@@ -62,6 +62,12 @@ def draw_action_panel(screen, game, fonts, removing, selected_special):
     screen.blit(fonts["small"].render(f"     → {MINE_COST} bodů", True, mine_color), (x + 10, y))
     y += 22
 
+    factory_color = color if player.score >= FACTORY_COST else (60, 60, 60)
+    screen.blit(fonts["medium"].render("[F] Továrna", True, factory_color), (x + 10, y))
+    y += 18
+    screen.blit(fonts["small"].render(f"     → {FACTORY_COST} bodů", True, factory_color), (x + 10, y))
+    y += 22
+
     screen.blit(fonts["medium"].render("[X] Smazat buňku", True, (200, 200, 200)), (x + 10, y))
     y += 18
     screen.blit(fonts["small"].render("     → +10 bodů", True, (100, 150, 100)), (x + 10, y))
@@ -141,6 +147,9 @@ def draw_grid(screen: pygame.Surface, grid: Grid):
             elif s == SpecialType.MINE_ACTIVE.value:
                 pygame.draw.line(screen, (255, 80, 80), (x + 2, y + 2), (x + CELL_SIZE - 2, y + CELL_SIZE - 2), 2)
                 pygame.draw.line(screen, (255, 80, 80), (x + CELL_SIZE - 2, y + 2), (x + 2, y + CELL_SIZE - 2), 2)
+            elif s == SpecialType.FACTORY.value:
+                cx, cy = x + CELL_SIZE // 2, y + CELL_SIZE // 2
+                pygame.draw.rect(screen, (255, 165, 0), (cx - 3, cy - 3, 6, 6))
     
 def draw_game_over_panel(screen, game, fonts):
     x = game.window_width - PANEL_WIDTH

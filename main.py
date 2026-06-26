@@ -74,6 +74,8 @@ def main():
                         selected_special_cell = SpecialType.GRANARY
                     elif event.key == pygame.K_m:
                         selected_special_cell = SpecialType.MINE_INACTIVE
+                    elif event.key == pygame.K_f:
+                        selected_special_cell = SpecialType.FACTORY
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     col = x // CELL_SIZE
