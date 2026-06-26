@@ -3,7 +3,8 @@ Konfigurační soubor pro hru Game of Life
 Využívá se pro nastavení konstant ve hře.
 '''
 PANEL_WIDTH = 200  # šířka panelu pro ovládací prvky
-#používá se jen pro okno před set upem
+
+#tyto parametry se používají jen pro okno před set upem
 WINDOW_WIDTH = 800 + PANEL_WIDTH 
 WINDOW_HEIGHT = 600
 CELL_SIZE = 10  # pixelů na buňku
