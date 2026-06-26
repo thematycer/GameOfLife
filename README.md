@@ -111,7 +111,7 @@ Po spuštění se zobrazí setup obrazovka kde lze nastavit:
 - Interval fáze akce
 - Počáteční rozložení (náhodné / prázdné)
 - Velikost mřížky (Malá / Střední / Velká)
-- 
+
 ## Testování
 
 Testy jdou spustit pomocí příkazu: 
