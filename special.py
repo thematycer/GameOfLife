@@ -7,6 +7,7 @@ class SpecialType(Enum):
     GRANARY = 1
     MINE_INACTIVE = 2  # první kolo po umístění
     MINE_ACTIVE = 3    # od druhého kola, exploduje při kontaktu
+    FLAG = 4 # Vlajky pro zabrání
 
 def granary_effect(grid, row: int, col: int) -> bool:
     """
@@ -26,6 +27,8 @@ def mine_explosion(cells, special, row: int, col: int, height: int, width: int):
     for r in range(row - MINE_RADIUS, row + MINE_RADIUS + 1):
         for c in range(col - MINE_RADIUS, col + MINE_RADIUS + 1):
             if r < 0 or c < 0 or r >= height or c >= width:
+                continue
+            if special[r, c] == SpecialType.FLAG.value:
                 continue
             cells[r, c] = 0
             special[r, c] = SpecialType.NONE.value

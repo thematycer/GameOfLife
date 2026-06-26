@@ -1,25 +1,32 @@
-# Konfigurační soubor pro hru Game of Life
+''' 
+Konfigurační soubor pro hru Game of Life
+Využívá se pro nastavení konstant ve hře.
+'''
 PANEL_WIDTH = 200  # šířka panelu pro ovládací prvky
-WINDOW_WIDTH = 800 + PANEL_WIDTH
+#používá se jen pro okno před set upem
+WINDOW_WIDTH = 800 + PANEL_WIDTH 
 WINDOW_HEIGHT = 600
-
 CELL_SIZE = 10  # pixelů na buňku
 
+# kolik hráč dostane zpátky za prodej buňky. 0.5 = 50% zpátky.
 REFUND_MULTIPLIER = 0.5  # hráč dostane zpět 50% skóre za odstranění buňky
 
+# ceny během fáze akce
 CELL_COST = 10
+#cena za upgrade buňky, cena se zvyšuje s každým upgradem
 UPGRADE_COST_BASE = 50
 
 GRANARY_COST = 100
-GRANARY_UNKEEP_COST = 25
+GRANARY_UNKEEP_COST = 25 # cena za údržbu sýpky, odečítá se z hráčova skóre na konci fáze simulace
+
 
 MINE_COST = 50
-MINE_RADIUS = 1  
+MINE_RADIUS = 1  # poloměr exploze v buňkách (1 = 3×3 oblast)
 
 
 
 
-FPS = 10  # počet ticků za sekundu
+FPS = 10  # rychlost simulace
 
 COLOR_BACKGROUND = (15, 15, 15)
 PLAYER_COLORS = [

@@ -1,11 +1,13 @@
+''' 
+řeší hlavní herní logiku. Propojuje hráče, mřížku a ui.
+'''
 from enum import Enum
-
 from grid import Grid
 from config import CELL_COST, GRANARY_COST, GRANARY_UNKEEP_COST,  MINE_COST, PANEL_WIDTH, REFUND_MULTIPLIER
 from player import Player
 import numpy as np
 from special import SpecialType, mine_explosion
-from modes import GameMode
+from modes import FlagsMode, GameMode
 
 
 class Phase(Enum):
@@ -16,6 +18,13 @@ class Phase(Enum):
 
 class Game:
     def __init__(self, num_players, action_interval, mode, start_score=100, player_names=None, random_start=True, window_width=800, window_height=600, cell_size=10):
+        self.num_players = num_players
+        
+        self.current_player = 0      # index hráče na tahu (0 = hráč 1)
+        self.tick_count = 0
+        self.action_interval = action_interval
+        self.mode = mode  # herní mód
+        self.standings = []  # seznam hráčů seřazený podle skóre (pro UI)
         
         self.window_width = window_width
         self.window_height = window_height
@@ -34,15 +43,12 @@ class Game:
         if random_start:
             self.grid.randomize(num_players=num_players)
         
+        if isinstance(self.mode, FlagsMode):
+            self.mode.place_flags(self.grid)
+        
         self.phase = Phase.ACTION_PHASE 
         
-        self.num_players = num_players
         
-        self.current_player = 0      # index hráče na tahu (0 = hráč 1)
-        self.tick_count = 0
-        self.action_interval = action_interval
-        self.mode = mode  # herní mód
-        self.standings = []  # seznam hráčů seřazený podle skóre (pro UI)
 
 
 
@@ -56,6 +62,9 @@ class Game:
             return
         self.grid.next_generation(self.dominant_neighbor, mine_explosion)
         self.tick_count += 1
+        if isinstance(self.mode, FlagsMode):
+            self.mode.award_flag_scores(self)
+
         if self.tick_count % self.action_interval == 0:
             self.calculate_scores()
             self.phase = Phase.ACTION_PHASE
@@ -111,6 +120,7 @@ class Game:
 
     
     def calculate_scores(self):
+        # spočítá skóre hráčů na základě počtu jejich buněk a zaplatí údržby za speciální typy
         for player in self.players:
             player.score += int(np.sum(self.grid.cells == player.id))
         self.pay_upkeep_for_granaries()
@@ -129,6 +139,8 @@ class Game:
                 player.score -= upkeep_cost
 
     def dominant_neighbor(self, row: int, col: int) -> int:
+        # vrací ID hráče, který má převahu nad danou pozicí a tedy by jí měl dostat
+
         # spočítej kolik sousedů má každý hráč
         counts = {}  # {player_id: počet}
         for r in range(row - 1, row + 2):

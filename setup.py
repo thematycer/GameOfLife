@@ -1,4 +1,4 @@
-from modes import DominanceMode
+from modes import DominanceMode, EliminationMode, FlagsMode
 
 class SetupOption:
     """Jedna nastavitelná položka v menu."""
@@ -21,7 +21,7 @@ class SetupScreen:
     def __init__(self):
         self.options = [
             SetupOption("Počet hráčů", [2, 3, 4, 5, 6], default_index=0),
-            SetupOption("Herní mód",   ["Dominance"], default_index=0),
+            SetupOption("Herní mód",   ["Dominance","Eliminace", "Vlajky"], default_index=0),
             SetupOption("Délka hry",   [20, 100, 200, 300, 500], default_index=0),
             SetupOption("Počáteční skóre", [0 ,50, 100, 200, 500], default_index=1),
             SetupOption("Interval akce",   [10, 20, 30, 50], default_index=1),
@@ -91,6 +91,10 @@ class SetupScreen:
 
         if mode_name == "Dominance":
             mode = DominanceMode(max_ticks=max_ticks)
+        elif mode_name == "Eliminace":
+            mode = EliminationMode()
+        elif mode_name == "Vlajky":
+            mode = FlagsMode(max_ticks=max_ticks)
 
         game = Game(
             num_players=num_players,

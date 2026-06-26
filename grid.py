@@ -1,4 +1,9 @@
 # řeší mřížku (2D pole) a její logiku
+''' 
+Řeší logiku mříky za využití dvou 2d polý.
+cells - určuje vlastníka
+special - typ speciální budovy na daném poly
+''' 
 import numpy as np
 from special import SpecialType, granary_effect
 class Grid:
@@ -11,6 +16,8 @@ class Grid:
         self.special = np.zeros((height, width), dtype=int)
 
     def randomize(self, density: float = 0.3, num_players: int = 1):
+        # náhodně rozdělií buňky mezi hráče
+        # density říká jaký je poměr živých buněk k mrtvým (0.3 = 30% živých)
         self.cells = np.random.choice(
             range(num_players + 1),  # 0 = mrtvá, 1..n = hráči
             size=(self.height, self.width),
@@ -18,6 +25,8 @@ class Grid:
         )
 
     def count_neighbors(self, row: int, col: int) -> int:
+        # Počítá živé sousedy v okolí 3×3 (bez středu).
+        # Buňky mimo mřížku se považují za mrtvé.
         count = 0
         # procházej sousední buňky
         for r in range(row - 1, row + 2):
@@ -29,6 +38,8 @@ class Grid:
         return count
 
     def next_generation(self, dominant_neighbor_func, mine_explosion_func):
+        # aplukuje pravidla hry na celou  mřížku
+
         # 1. nejdřív vytvoř nové mřížky
         new_cells = np.zeros_like(self.cells)
         new_special = np.zeros_like(self.special)
@@ -45,11 +56,13 @@ class Grid:
                 elif not alive and neighbors == 3:
                     new_cells[row, col] = dominant_neighbor_func(row, col)
                 
-                # zachovej miny
-                if not alive and self.special[row, col] in (SpecialType.MINE_INACTIVE.value,SpecialType.MINE_ACTIVE.value):
+                # speciální typ co nepotřebuje vlasníka
+                if not alive and self.special[row, col] in (SpecialType.MINE_INACTIVE.value,SpecialType.MINE_ACTIVE.value, SpecialType.FLAG.value):
                     new_special[row, col] = self.special[row, col]
 
+
         # 3. zpracuj miny na new_cells/new_special
+        # nejdřív si je uložíme, aby výbuch nemohl vymazat minu, která by také chtěla vybuchnout
         mines_to_explode = []
         for row in range(self.height):
             for col in range(self.width):

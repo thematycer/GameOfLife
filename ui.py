@@ -132,6 +132,9 @@ def draw_grid(screen: pygame.Surface, grid: Grid):
             if s == SpecialType.GRANARY.value:
                 cx, cy = x + CELL_SIZE // 2, y + CELL_SIZE // 2
                 pygame.draw.rect(screen, (255, 255, 255), (cx - 2, cy - 2, 4, 4))
+            elif s == SpecialType.FLAG.value:
+                pygame.draw.rect(screen, (255, 215, 0), 
+                    (x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4), 2)
             elif s == SpecialType.MINE_INACTIVE.value:
                 pygame.draw.line(screen, (150, 150, 150), (x + 2, y + 2), (x + CELL_SIZE - 2, y + CELL_SIZE - 2), 2)
                 pygame.draw.line(screen, (150, 150, 150), (x + CELL_SIZE - 2, y + 2), (x + 2, y + CELL_SIZE - 2), 2)
@@ -176,12 +179,18 @@ def draw_game_over_panel(screen, game, fonts):
         y += 20
 
         # buňky a skóre
-        screen.blit(fonts["small"].render(
-            f"  Buňky: {entry['cells']}", True, (150, 150, 150)), (x + 10, y))
-        y += 16
-        screen.blit(fonts["small"].render(
-            f"  Skóre: {entry['score']}", True, (150, 150, 150)), (x + 10, y))
+        if "flag_score" in entry:
+            screen.blit(fonts["small"].render(
+                f"  Body za vlajky: {entry['flag_score']}", True, (150, 150, 150)), (x + 10, y))
+        else:
+            y += 16
+            screen.blit(fonts["small"].render(
+                f"  Buňky: {entry['cells']}", True, (150, 150, 150)), (x + 10, y))
+            y += 16
+            screen.blit(fonts["small"].render(
+                f"  Skóre: {entry['score']}", True, (150, 150, 150)), (x + 10, y))
         y += 20
+        
 
         pygame.draw.line(screen, (50, 50, 50), (x + 10, y), (game.window_width - 10, y))
         y += 12
@@ -220,8 +229,8 @@ def draw_setup(screen, setup, fonts):
             screen.blit(label, (cx - 170, y))
 
             # šipky + hodnota
-            arrow_left  = fonts["medium"].render("◀", True, value_color)
-            arrow_right = fonts["medium"].render("▶", True, value_color)
+            arrow_left  = fonts["medium"].render("<", True, value_color)
+            arrow_right = fonts["medium"].render(">", True, value_color)
             value_text  = fonts["medium"].render(str(option.value), True, value_color)
 
             screen.blit(arrow_left,  (cx + 60, y))
