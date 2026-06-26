@@ -1,12 +1,11 @@
 from enum import Enum
 
-from pyparsing import col
 from grid import Grid
-from config import CELL_COST, GRID_WIDTH, GRID_HEIGHT
+from config import CELL_COST, GRANARY_COST, GRANARY_UNKEEP_COST, GRID_WIDTH, GRID_HEIGHT, REFUND_MULTIPLIER
 from player import Player
 import numpy as np
+from special import SpecialType
 
-import player
 
 class Phase(Enum):
     SIMULATING = 1
@@ -59,9 +58,38 @@ class Game:
         player.score -= CELL_COST     # odečti cenu buňky
         self.grid.cells[row, col] = player.id
     
+    def place_special(self, row, col, special_type):
+        if self.phase != Phase.ACTION_PHASE:
+            return
+        if self.grid.cells[row, col] != self.current_player + 1: # hráč může umístit speciální buňku jen na vlastní buňku
+            return
+        player = self.current_player_obj()
+        if special_type == SpecialType.GRANARY:
+            if self.grid.special[row, col] == SpecialType.GRANARY.value:
+                return  # již je zde sýpka
+            if player.score < GRANARY_COST:
+                return  # nedostatek bodů
+            player.score -= GRANARY_COST
+            self.grid.special[row, col] = special_type.value
+
+    
     def calculate_scores(self):
         for player in self.players:
             player.score += int(np.sum(self.grid.cells == player.id))
+        self.pay_upkeep_for_granaries()
+    
+    def pay_upkeep_for_granaries(self):
+        for player in self.players:
+            granary_mask = (self.grid.special == SpecialType.GRANARY.value) & (self.grid.cells == player.id)
+            granary_count = int(np.sum(granary_mask))
+            upkeep_cost = granary_count * GRANARY_UNKEEP_COST
+            
+            if player.score < upkeep_cost:
+                # hráč nemá dostatek bodů na údržbu sýpek, ztrácí všechny své sýpky
+                self.grid.special[self.grid.cells == player.id] = 0
+                player.score = 0
+            else:
+                player.score -= upkeep_cost
 
     def dominant_neighbor(self, row: int, col: int) -> int:
         # spočítej kolik sousedů má každý hráč
@@ -78,3 +106,19 @@ class Game:
         if not counts:
             return 0
         return max(counts, key=lambda p: counts[p])
+    
+    def remove_cell(self, row: int, col: int):
+        if self.phase != Phase.ACTION_PHASE:
+            return
+        # hráč může odstranit jen vlastní buňky
+        if self.grid.cells[row, col] != self.current_player + 1:
+            return
+        player = self.current_player_obj()
+
+        if self.grid.special[row, col] == SpecialType.GRANARY.value:
+            player.score += GRANARY_COST*REFUND_MULTIPLIER
+            self.grid.special[row, col] = SpecialType.NONE.value
+        elif self.grid.special[row, col] == SpecialType.NONE.value:
+            player.score += CELL_COST*REFUND_MULTIPLIER
+            self.grid.cells[row, col] = 0
+        

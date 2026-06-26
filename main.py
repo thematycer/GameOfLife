@@ -3,37 +3,10 @@ import sys
 from game import Game, Phase
 from config import *
 from grid import Grid
+from special import SpecialType
+from ui import draw_action_panel, draw_grid, draw_simulation_panel
 
 
-def draw_grid(screen: pygame.Surface, grid: Grid):
-    for row in range(grid.height):
-        for col in range(grid.width):
-            x = col * CELL_SIZE
-            y = row * CELL_SIZE
-            owner = grid.cells[row, col]
-            color = PLAYER_COLORS[owner]  # 0 = pozadí, 1+ = hráči
-            pygame.draw.rect(screen, color, (x, y, CELL_SIZE, CELL_SIZE))
-
-def show_ui(screen: pygame.Surface, game: Game, font: pygame.font.Font):
-    if game.phase == Phase.SIMULATING:
-        return
-    if game.phase == Phase.ACTION_PHASE:
-        player = game.current_player_obj()
-
-        # pozadí pro text
-        pygame.draw.rect(screen, (30, 30, 30), (0, 0, WINDOW_WIDTH, 60))
-
-        # vykresli informace o hráči
-        color = PLAYER_COLORS[player.id]
-        name_text = f"{player.name} | Skóre: {player.score}"
-        screen.blit(font.render(name_text, True, color), (10, 10))
-
-        # dostupné upgrady
-        # dostupné upgrady
-        agg_cost = player.upgrade_cost("aggression")
-        res_cost = player.upgrade_cost("resilience")
-        upgrades_text = f"[A] Agresivita {player.aggression} -> cena za vylepšení {player.aggression + 1} ({agg_cost} bodů)   [S] Odolnost {player.resilience} -> cena za vylepšení {player.resilience + 1} ({res_cost} bodů)   [Enter] Potvrdit"
-        screen.blit(font.render(upgrades_text, True, (200, 200, 200)), (10, 35))
 
 def main():
     pygame.init()
@@ -43,8 +16,16 @@ def main():
     font = pygame.font.SysFont(None, 36)
 
     game = Game(num_players=2, action_interval=20)
-
+    
+    fonts = {
+    "large":  pygame.font.SysFont(None, 22),
+    "medium": pygame.font.SysFont(None, 18),
+    "small":  pygame.font.SysFont(None, 15),
+    }
+    
     running = True
+    selected_special_cell = None  # vybraná speciální buňka, například sýpka, pro umístění
+    removing = False
 
     while running:
         # 1. vstup
@@ -55,17 +36,29 @@ def main():
                 if event.key == pygame.K_r:
                     game.grid.randomize(num_players=game.num_players)
                 if event.key == pygame.K_RETURN:
+                    selected_special_cell = None
+                    removing = False
                     game.confirm_action()
                 if game.phase == Phase.ACTION_PHASE:
+                    if event.key == pygame.K_BACKSPACE:
+                        removing = not removing  # přepni režim odstraňování
                     if event.key == pygame.K_a:
                         game.current_player_obj().buy_upgrade("aggression")
                     if event.key == pygame.K_s:
                         game.current_player_obj().buy_upgrade("resilience")
+                    if event.key == pygame.K_g:
+                        selected_special_cell = SpecialType.GRANARY
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 col = x // CELL_SIZE
                 row = y // CELL_SIZE
-                game.place_cell(row, col)
+                if removing:
+                    game.remove_cell(row, col)
+                elif selected_special_cell:
+                    game.place_special(row, col, selected_special_cell)
+                    selected_special_cell = None
+                else:
+                    game.place_cell(row, col)
 
         # 2. aktualizace
         game.tick()
@@ -74,7 +67,9 @@ def main():
         screen.fill(COLOR_BACKGROUND)
         draw_grid(screen, game.grid)
         if game.phase == Phase.ACTION_PHASE:
-            show_ui(screen, game, font)
+            draw_action_panel(screen, game, fonts, removing, selected_special_cell)
+        elif game.phase == Phase.SIMULATING:
+            draw_simulation_panel(screen, game, fonts)
         pygame.display.flip()
         clock.tick(FPS)
 

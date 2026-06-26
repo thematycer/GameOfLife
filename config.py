@@ -1,14 +1,21 @@
 # Konfigurační soubor pro hru Game of Life
-WINDOW_WIDTH = 800
+PANEL_WIDTH = 200  # šířka panelu pro ovládací prvky
+WINDOW_WIDTH = 800 + PANEL_WIDTH
 WINDOW_HEIGHT = 600
 
 CELL_SIZE = 10  # pixelů na buňku
 
+REFUND_MULTIPLIER = 0.5  # hráč dostane zpět 50% skóre za odstranění buňky
+
 CELL_COST = 10
 UPGRADE_COST_BASE = 50
 
+GRANARY_COST = 100
+GRANARY_UNKEEP_COST = 25
 
-GRID_WIDTH = WINDOW_WIDTH // CELL_SIZE
+
+
+GRID_WIDTH = (WINDOW_WIDTH - PANEL_WIDTH) // CELL_SIZE
 GRID_HEIGHT = WINDOW_HEIGHT // CELL_SIZE
 
 FPS = 10  # počet ticků za sekundu
