@@ -1,27 +1,50 @@
 from enum import Enum
 
 from grid import Grid
-from config import CELL_COST, GRANARY_COST, GRANARY_UNKEEP_COST, GRID_WIDTH, GRID_HEIGHT, MINE_COST, REFUND_MULTIPLIER
+from config import CELL_COST, GRANARY_COST, GRANARY_UNKEEP_COST,  MINE_COST, PANEL_WIDTH, REFUND_MULTIPLIER
 from player import Player
 import numpy as np
 from special import SpecialType, mine_explosion
+from modes import GameMode
 
 
 class Phase(Enum):
-    SIMULATING = 1
-    ACTION_PHASE = 2
+    SET_UP = 1
+    SIMULATING = 2
+    ACTION_PHASE = 3
+    GAME_OVER = 4
 
 class Game:
-    def __init__(self, num_players: int, action_interval: int):
-        self.players = [Player(id=i+1, name=f"Hráč {i+1}") for i in range(num_players)]
-        self.grid = Grid(GRID_WIDTH, GRID_HEIGHT)
-        self.grid.randomize(num_players=num_players)
+    def __init__(self, num_players, action_interval, mode, start_score=100, player_names=None, random_start=True, window_width=800, window_height=600, cell_size=10):
+        
+        self.window_width = window_width
+        self.window_height = window_height
+        self.cell_size = cell_size
+
+        grid_w = (self.window_width - PANEL_WIDTH) // self.cell_size
+        grid_h = self.window_height // self.cell_size
+
+        names = player_names or [f"Hráč {i+1}" for i in range(num_players)]
+        self.players = [
+            Player(id=i+1, name=names[i], score=start_score)
+            for i in range(num_players)
+        ]
+        self.grid = Grid(grid_w, grid_h)
+
+        if random_start:
+            self.grid.randomize(num_players=num_players)
+        
+        self.phase = Phase.ACTION_PHASE 
         
         self.num_players = num_players
+        
         self.current_player = 0      # index hráče na tahu (0 = hráč 1)
         self.tick_count = 0
         self.action_interval = action_interval
-        self.phase = Phase.SIMULATING
+        self.mode = mode  # herní mód
+        self.standings = []  # seznam hráčů seřazený podle skóre (pro UI)
+
+
 
 
     def current_player_obj(self) -> Player:
@@ -36,6 +59,9 @@ class Game:
         if self.tick_count % self.action_interval == 0:
             self.calculate_scores()
             self.phase = Phase.ACTION_PHASE
+            if self.mode.check_winner(self):
+                self.standings = self.mode.get_standings(self)
+                self.phase = Phase.GAME_OVER
 
     def confirm_action(self):
         # hráč stiskl Enter – předej tah dalšímu hráči
