@@ -56,6 +56,12 @@ def draw_action_panel(screen, game, fonts, removing, selected_special):
     screen.blit(fonts["small"].render(f"     → {GRANARY_COST} bodů", True, granary_color), (x + 10, y))
     y += 22
 
+    mine_color = color if player.score >= MINE_COST else (60, 60, 60)
+    screen.blit(fonts["medium"].render("[M] Mina", True, mine_color), (x + 10, y))
+    y += 18
+    screen.blit(fonts["small"].render(f"     → {MINE_COST} bodů", True, mine_color), (x + 10, y))
+    y += 22
+
     screen.blit(fonts["medium"].render("[X] Smazat buňku", True, (200, 200, 200)), (x + 10, y))
     y += 18
     screen.blit(fonts["small"].render("     → +10 bodů", True, (100, 150, 100)), (x + 10, y))
@@ -71,6 +77,8 @@ def draw_action_panel(screen, game, fonts, removing, selected_special):
         mode_text = "Mazání buněk"
     elif selected_special == SpecialType.GRANARY:
         mode_text = "Umístit sýpku"
+    elif selected_special == SpecialType.MINE_INACTIVE:
+        mode_text = "Umístit minu"
     else:
         mode_text = "Umístit buňku"
     screen.blit(fonts["medium"].render(mode_text, True, color), (x + 10, y))
@@ -117,10 +125,16 @@ def draw_grid(screen: pygame.Surface, grid: Grid):
             x = col * CELL_SIZE
             y = row * CELL_SIZE
             owner = grid.cells[row, col]
-            color = PLAYER_COLORS[owner]  # 0 = pozadí, 1+ = hráči
+            color = PLAYER_COLORS[owner]
             pygame.draw.rect(screen, color, (x, y, CELL_SIZE, CELL_SIZE))
-            if grid.special[row, col] == SpecialType.GRANARY.value:
-                # vykresli sýpku jako bílý čtverec uprostřed buňky
-                center_x = x + CELL_SIZE // 2
-                center_y = y + CELL_SIZE // 2
-                pygame.draw.rect(screen, (255, 255, 255), (center_x - 2, center_y - 2, 4, 4))
+
+            s = grid.special[row, col]
+            if s == SpecialType.GRANARY.value:
+                cx, cy = x + CELL_SIZE // 2, y + CELL_SIZE // 2
+                pygame.draw.rect(screen, (255, 255, 255), (cx - 2, cy - 2, 4, 4))
+            elif s == SpecialType.MINE_INACTIVE.value:
+                pygame.draw.line(screen, (150, 150, 150), (x + 2, y + 2), (x + CELL_SIZE - 2, y + CELL_SIZE - 2), 2)
+                pygame.draw.line(screen, (150, 150, 150), (x + CELL_SIZE - 2, y + 2), (x + 2, y + CELL_SIZE - 2), 2)
+            elif s == SpecialType.MINE_ACTIVE.value:
+                pygame.draw.line(screen, (255, 80, 80), (x + 2, y + 2), (x + CELL_SIZE - 2, y + CELL_SIZE - 2), 2)
+                pygame.draw.line(screen, (255, 80, 80), (x + CELL_SIZE - 2, y + 2), (x + 2, y + CELL_SIZE - 2), 2)

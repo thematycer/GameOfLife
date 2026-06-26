@@ -28,22 +28,43 @@ class Grid:
                     count += 1
         return count
 
-    def next_generation(self, dominant_neighbor_func):
-        #vytvoř prázdnou kopii mřížky pro novou generaci. Chceme zachovat původní mřížku pro zkoumání pravidel.
+    def next_generation(self, dominant_neighbor_func, mine_explosion_func):
+        # 1. nejdřív vytvoř nové mřížky
         new_cells = np.zeros_like(self.cells)
         new_special = np.zeros_like(self.special)
+
+        # 2. aplikuj pravidla GoL
         for row in range(self.height):
             for col in range(self.width):
                 neighbors = self.count_neighbors(row, col)
                 alive = self.cells[row, col] > 0
-                protected = granary_effect(self, row, col)  # zkontroluj, zda je buňka chráněna sýpkou
-                if (alive and neighbors in (2, 3)) or protected:
-                    # buňka je živá a má 2 nebo 3 sousedy, zůstává živá
+                protected = granary_effect(self, row, col)
+                if alive and (neighbors in (2, 3) or (protected and neighbors > 3)):
                     new_cells[row, col] = self.cells[row, col]
                     new_special[row, col] = self.special[row, col]
                 elif not alive and neighbors == 3:
-                    # buňka je mrtvá a má přesně 3 sousedy, stává se živou
                     new_cells[row, col] = dominant_neighbor_func(row, col)
-                # else: buňka zůstává mrtvá (0). Řeší jak přelidnění, tak osamělosti
+                
+                # zachovej miny
+                if not alive and self.special[row, col] in (SpecialType.MINE_INACTIVE.value,SpecialType.MINE_ACTIVE.value):
+                    new_special[row, col] = self.special[row, col]
+
+        # 3. zpracuj miny na new_cells/new_special
+        mines_to_explode = []
+        for row in range(self.height):
+            for col in range(self.width):
+                s = new_special[row, col]
+                cell = new_cells[row, col]
+                if s == SpecialType.MINE_INACTIVE.value and cell > 0:
+                    new_special[row, col] = SpecialType.NONE.value   # deaktivace
+                elif s == SpecialType.MINE_INACTIVE.value:
+                    new_special[row, col] = SpecialType.MINE_ACTIVE.value  # aktivuj
+                elif s == SpecialType.MINE_ACTIVE.value and cell > 0:
+                    mines_to_explode.append((row, col))  # naplánuj výbuch
+
+        # 4. aplikuj výbuchy až po iteraci
+        for (r, c) in mines_to_explode:
+            mine_explosion_func(new_cells, new_special, r, c, self.height, self.width)
+
         self.cells = new_cells
         self.special = new_special

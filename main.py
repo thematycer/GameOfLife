@@ -48,6 +48,8 @@ def main():
                         game.current_player_obj().buy_upgrade("resilience")
                     if event.key == pygame.K_g:
                         selected_special_cell = SpecialType.GRANARY
+                    if event.key == pygame.K_m:
+                        selected_special_cell = SpecialType.MINE_INACTIVE
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 col = x // CELL_SIZE

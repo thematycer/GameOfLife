@@ -1,10 +1,10 @@
 from enum import Enum
 
 from grid import Grid
-from config import CELL_COST, GRANARY_COST, GRANARY_UNKEEP_COST, GRID_WIDTH, GRID_HEIGHT, REFUND_MULTIPLIER
+from config import CELL_COST, GRANARY_COST, GRANARY_UNKEEP_COST, GRID_WIDTH, GRID_HEIGHT, MINE_COST, REFUND_MULTIPLIER
 from player import Player
 import numpy as np
-from special import SpecialType
+from special import SpecialType, mine_explosion
 
 
 class Phase(Enum):
@@ -31,7 +31,7 @@ class Game:
         # posune simulaci o jeden krok, pokud není fáze akce
         if self.phase != Phase.SIMULATING:
             return
-        self.grid.next_generation(self.dominant_neighbor)
+        self.grid.next_generation(self.dominant_neighbor, mine_explosion)
         self.tick_count += 1
         if self.tick_count % self.action_interval == 0:
             self.calculate_scores()
@@ -61,16 +61,27 @@ class Game:
     def place_special(self, row, col, special_type):
         if self.phase != Phase.ACTION_PHASE:
             return
-        if self.grid.cells[row, col] != self.current_player + 1: # hráč může umístit speciální buňku jen na vlastní buňku
-            return
         player = self.current_player_obj()
         if special_type == SpecialType.GRANARY:
+            if self.grid.cells[row, col] != self.current_player + 1: # jen na vlastní buňku
+                return
             if self.grid.special[row, col] == SpecialType.GRANARY.value:
                 return  # již je zde sýpka
+            if self.grid.special[row, col] != SpecialType.NONE.value:
+                return  # nelze umístit jiný speciální typ
             if player.score < GRANARY_COST:
                 return  # nedostatek bodů
             player.score -= GRANARY_COST
             self.grid.special[row, col] = special_type.value
+        elif special_type == SpecialType.MINE_INACTIVE:
+            if self.grid.cells[row, col] != 0:  # jen na prázdné pole
+                return
+            if self.grid.special[row, col] != SpecialType.NONE.value:
+                return  # nelze umístit jiný speciální typ
+            if player.score < MINE_COST:
+                return  # nedostatek bodů
+            player.score -= MINE_COST
+            self.grid.special[row, col] = SpecialType.MINE_INACTIVE.value
 
     
     def calculate_scores(self):

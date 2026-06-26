@@ -1,8 +1,12 @@
 from enum import Enum
 
+from config import MINE_RADIUS
+
 class SpecialType(Enum):
     NONE = 0
     GRANARY = 1
+    MINE_INACTIVE = 2  # první kolo po umístění
+    MINE_ACTIVE = 3    # od druhého kola, exploduje při kontaktu
 
 def granary_effect(grid, row: int, col: int) -> bool:
     """
@@ -17,3 +21,11 @@ def granary_effect(grid, row: int, col: int) -> bool:
                 if grid.special[r, c] == SpecialType.GRANARY.value and grid.cells[r, c] == owner:
                     return True
     return False
+
+def mine_explosion(cells, special, row: int, col: int, height: int, width: int):
+    for r in range(row - MINE_RADIUS, row + MINE_RADIUS + 1):
+        for c in range(col - MINE_RADIUS, col + MINE_RADIUS + 1):
+            if r < 0 or c < 0 or r >= height or c >= width:
+                continue
+            cells[r, c] = 0
+            special[r, c] = SpecialType.NONE.value
