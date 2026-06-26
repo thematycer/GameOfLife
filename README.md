@@ -98,7 +98,7 @@ pip install pygame numpy
 - numpy
 
 ## Použití
-
+Hra jde spustit pomocí:
 ```bash
 python main.py
 ```
@@ -106,11 +106,19 @@ python main.py
 Po spuštění se zobrazí setup obrazovka kde lze nastavit:
 - Počet hráčů (2–6)
 - Herní mód (Dominance / Eliminace / Vlajky)
-- Délku hry
+- Délku hry (neplatí pro eliminaci)
 - Počáteční skóre
 - Interval fáze akce
 - Počáteční rozložení (náhodné / prázdné)
 - Velikost mřížky (Malá / Střední / Velká)
+- 
+## Testování
+
+Testy jdou spustit pomocí příkazu: 
+
+```bash
+pytest .\test_main.py -v 
+```
 
 ## Struktura projektu
 
