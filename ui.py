@@ -33,7 +33,7 @@ def draw_action_panel(screen, game, fonts, removing, selected_special):
     for key, label, attr in [("A", "Agresivita", "aggression"), ("S", "Odolnost", "resilience")]:
         level = getattr(player, attr)
         cost = player.upgrade_cost(attr)
-        affordable = player.score >= cost
+        affordable = player.score >= cost and level <= MAX_UPGRADE_LEVEL
 
         name_color = (200, 200, 200) if affordable else (80, 80, 80)
         screen.blit(fonts["medium"].render(f"[{key}] {label}  lv.{level}", True, name_color), (x + 10, y))

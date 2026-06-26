@@ -15,6 +15,7 @@ REFUND_MULTIPLIER = 0.5  # hráč dostane zpět 50% skóre za odstranění buňk
 CELL_COST = 10
 #cena za upgrade buňky, cena se zvyšuje s každým upgradem
 UPGRADE_COST_BASE = 50
+MAX_UPGRADE_LEVEL = 18# větší by mohl rozbít nějaké funkce
 
 GRANARY_COST = 100
 GRANARY_UNKEEP_COST = 25 # cena za údržbu sýpky, odečítá se z hráčova skóre na konci fáze simulace

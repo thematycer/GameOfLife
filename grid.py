@@ -4,6 +4,7 @@
 cells - určuje vlastníka
 special - typ speciální budovy na daném poly
 ''' 
+import random
 import numpy as np
 from special import SpecialType, granary_effect
 class Grid:
@@ -50,7 +51,15 @@ class Grid:
                 neighbors = self.count_neighbors(row, col)
                 alive = self.cells[row, col] > 0
                 protected = granary_effect(self, row, col)
-                if alive and (neighbors in (2, 3) or (protected and neighbors > 3)):
+                survives = alive and (neighbors in (2, 3) or (protected and neighbors > 3))
+                if alive and not survives:
+                    owner = self.cells[row, col]
+                    player = players[owner - 1]
+                    chance = min(player.resilience * 0.05, 0.90)  # max 90%, level 18
+                    if random.random() < chance:
+                        survives = True
+                
+                if survives:
                     new_cells[row, col] = self.cells[row, col]
                     new_special[row, col] = self.special[row, col]
                 elif not alive and neighbors == 3:

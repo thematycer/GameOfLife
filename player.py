@@ -1,6 +1,6 @@
 # player.py
 from dataclasses import dataclass, field
-from config import UPGRADE_COST_BASE
+from config import MAX_UPGRADE_LEVEL, UPGRADE_COST_BASE
 
 @dataclass
 class Player:
@@ -14,10 +14,13 @@ class Player:
         return UPGRADE_COST_BASE * (level + 1)
 
     def buy_upgrade(self, upgrade: str) -> bool:
+        level = getattr(self, upgrade)
+        if level >= MAX_UPGRADE_LEVEL:
+            return False
         cost = self.upgrade_cost(upgrade)
         if self.score >= cost:
             self.score -= cost
-            setattr(self, upgrade, getattr(self, upgrade) + 1)
+            setattr(self, upgrade, level + 1)
             return True
         return False
     
