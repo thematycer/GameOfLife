@@ -86,7 +86,7 @@ Na mřížce jsou rozmístěny speciální pozice (vlajky). Hráč, který pozic
 ## Instalace
 
 ```bash
-git clone https://github.com/thematycer/GameOfLife
+git clone git@github.com:thematycer/GameOfLife.git
 cd GameOfLife
 pip install pygame numpy
 ```
